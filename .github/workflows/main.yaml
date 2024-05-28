@@ -29,3 +29,13 @@ jobs:
     - name: Deploy Lambda Function
       run: |
         aws lambda update-function-code --function-name test_hello_world --zip-file fileb://my_lambda_function.zip
+    - name: Publish New Version
+      id: publish_version
+      run: |
+        VERSION=$(aws lambda publish-version --function-name test_hello_world --query 'Version' --output text)
+        echo "::set-output name=VERSION::$VERSION"
+
+    - name: Create Alias
+      run: |
+        aws lambda update-alias --function-name test_hello_world --name dev --function-version ${{ steps.publish_version.outputs.VERSION }} || \
+        aws lambda create-alias --function-name test_hello_world --name dev --function-version ${{ steps.publish_version.outputs.VERSION }}
