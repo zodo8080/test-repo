@@ -21,11 +21,11 @@ jobs:
     - name: Run  bash
       run:  |
         function_name=$(test_hello_world/read_name.sh)
-        echo "FUNCTION_NAME=$function_name" >> $GITHUB_ENV
+        
     
     - name: Print function name
       run: |
-        echo "Function Name: $FUNCTION_NAME"    
+        echo "Function Name: $function_name"    
 
     # - name: Zip Lambda Function
     #   run: |
