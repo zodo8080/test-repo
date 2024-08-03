@@ -4,7 +4,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Print the script directory
-echo "Script Directory: $SCRIPT_DIR"
+# echo "Script Directory: $SCRIPT_DIR"
 
 # Check if jq is installed
 if ! command -v jq &> /dev/null
