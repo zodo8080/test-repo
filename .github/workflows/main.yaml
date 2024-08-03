@@ -19,12 +19,12 @@ jobs:
         chmod +x test_hello_world/read_name.sh
     
     - name: Run bash script and check output
-      id: run_script
+      id: run_script1
       run: |
         bash test_hello_world/read_name.sh
 
     - name: Run bash script and print output
-      id: run_script
+      id: run_script2
       run: |
         function_name=$(bash test_hello_world/read_name.sh)
         echo "Function Name: ${function_name}"
