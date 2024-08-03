@@ -20,8 +20,8 @@ jobs:
     
     - name: Run  bash
       run:  |
-        test_hello_world/read_name.sh
-
+        function_name=test_hello_world/read_name.sh
+        echo function_name
     - name: Zip Lambda Function
       run: |
         zip -r my_lambda_function.zip lambda_function.py
