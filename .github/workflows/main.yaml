@@ -20,7 +20,7 @@ jobs:
     
     - name: Run  bash
       run:  |
-        function_name=test_hello_world/read_name.sh
+        function_name=$(test_hello_world/read_name.sh)
         echo function_name
     - name: Zip Lambda Function
       run: |
