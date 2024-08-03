@@ -18,14 +18,17 @@ jobs:
       run:  |
         chmod +x test_hello_world/read_name.sh
     
-    - name: Run  bash
-      run:  |
-        function_name=$(test_hello_world/read_name.sh)
-        
-    
-    - name: Print function name
+    - name: Run bash script and check output
+      id: run_script
       run: |
-        echo "Function Name: $function_name"    
+        bash test_hello_world/read_name.sh
+
+    - name: Run bash script and print output
+      id: run_script
+      run: |
+        function_name=$(bash test_hello_world/read_name.sh)
+        echo "Function Name: ${function_name}"
+   
 
     # - name: Zip Lambda Function
     #   run: |
