@@ -13,7 +13,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
+    
+    - name: Chmod bash
+      run:  |
+        chmod +x test_hello_world/read_name.sh
+    
+    - name: Run  bash
+      run:  |
+        test_hello_world/read_name.sh
 
     - name: Zip Lambda Function
       run: |
