@@ -29,4 +29,4 @@ if [ -z "$name" ]; then
 fi
 
 # Print the name
-echo "Name: $name"
+echo "$name"
