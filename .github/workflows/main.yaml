@@ -39,23 +39,23 @@ jobs:
       run: |
         zip -r my_lambda_function.zip "$FUNCTION_NAME/lambda_function.py"
 
-    # - name: Configure AWS credentials
-    #   uses: aws-actions/configure-aws-credentials@v2
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: ap-south-1  # Change to your region
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1  # Change to your region
 
-    # - name: Deploy Lambda Function
-    #   run: |
-    #     aws lambda update-function-code --function-name test_hello_world --zip-file fileb://my_lambda_function.zip
-    # - name: Publish New Version
-    #   id: publish_version
-    #   run: |
-    #     VERSION=$(aws lambda publish-version --function-name test_hello_world --query 'Version' --output text)
-    #     echo "::set-output name=VERSION::$VERSION"
+    - name: Deploy Lambda Function
+      run: |
+        aws lambda update-function-code --function-name test_hello_world --zip-file fileb://my_lambda_function.zip
+    - name: Publish New Version
+      id: publish_version
+      run: |
+        VERSION=$(aws lambda publish-version --function-name test_hello_world --query 'Version' --output text)
+        echo "::set-output name=VERSION::$VERSION"
 
-    # - name: Create Alias
-    #   run: |
-    #     aws lambda update-alias --function-name test_hello_world --name dev --function-version ${{ steps.publish_version.outputs.VERSION }} || \
-    #     aws lambda create-alias --function-name test_hello_world --name dev --function-version ${{ steps.publish_version.outputs.VERSION }}
+    - name: Create Alias
+      run: |
+        aws lambda update-alias --function-name test_hello_world --name dev --function-version ${{ steps.publish_version.outputs.VERSION }} || \
+        aws lambda create-alias --function-name test_hello_world --name dev --function-version ${{ steps.publish_version.outputs.VERSION }}
