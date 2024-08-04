@@ -49,6 +49,10 @@ jobs:
     - name: Deploy Lambda Function
       run: |
         aws lambda update-function-code --function-name "$FUNCTION_NAME" --zip-file fileb://my_lambda_function.zip
+  
+    - name: Update Lambda function environment variables
+      run: aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --environment "Variables={ENV=dev}"
+    
     - name: Publish New Version
       id: publish_version
       run: |
