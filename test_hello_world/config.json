@@ -1,5 +1,5 @@
 {
     "name": "test_hello_world",
-    "age": 30,
+    "env": "dev",
     "email": "john.doe@example.com"
 }

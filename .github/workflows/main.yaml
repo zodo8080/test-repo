@@ -18,10 +18,10 @@ jobs:
       run:  |
         chmod +x test_hello_world/read_name.sh
     
-    - name: Run bash script and check output
-      id: run_script1
-      run: |
-        bash test_hello_world/read_name.sh
+    # - name: Run bash script and check output
+    #   id: run_script1
+    #   run: |
+    #     bash test_hello_world/read_name.sh
 
     - name: Run bash script and print output
       id: run_script2
@@ -33,6 +33,15 @@ jobs:
       run: |
         echo "Function Name: $FUNCTION_NAME"
 
+    - name: Run bash script  for env
+      id: run_script3
+      run: |
+        env=$(bash test_hello_world/read_env.sh)
+        echo "ENV=${env}" >> $GITHUB_ENV
+    
+    - name: Print function name
+      run: |
+        echo "Function Name: $ENV"
    
 
     - name: Zip Lambda Function
@@ -51,7 +60,7 @@ jobs:
         aws lambda update-function-code --function-name "$FUNCTION_NAME" --zip-file fileb://my_lambda_function.zip
   
     - name: Update Lambda function environment variables
-      run: aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --environment "Variables={ENV=dev}"
+      run: aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --environment "Variables={ENV=$ENV}"
     
     - name: Publish New Version
       id: publish_version
@@ -61,5 +70,5 @@ jobs:
 
     - name: Create Alias
       run: |
-        aws lambda update-alias --function-name "$FUNCTION_NAME" --name dev --function-version ${{ steps.publish_version.outputs.VERSION }} || \
-        aws lambda create-alias --function-name "$FUNCTION_NAME" --name dev --function-version ${{ steps.publish_version.outputs.VERSION }}
+        aws lambda update-alias --function-name "$FUNCTION_NAME" --name "$ENV" --function-version ${{ steps.publish_version.outputs.VERSION }} || \
+        aws lambda create-alias --function-name "$FUNCTION_NAME" --name "$ENV" --function-version ${{ steps.publish_version.outputs.VERSION }}
