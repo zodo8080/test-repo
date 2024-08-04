@@ -41,7 +41,7 @@ jobs:
     
     - name: Print function name
       run: |
-        echo "Function Name: $ENV"
+        echo "Env: $ENV"
    
 
     - name: Zip Lambda Function

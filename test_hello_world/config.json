@@ -1,5 +1,5 @@
 {
     "name": "test_hello_world",
-    "env": "dev",
+    "env": "uat",
     "email": "john.doe@example.com"
 }
