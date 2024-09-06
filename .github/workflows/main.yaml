@@ -23,6 +23,34 @@ jobs:
     #   run: |
     #     bash test_hello_world/read_name.sh
 
+    
+    # Step 1: Retrieve the list of changed files in the push
+    - name: Get modified files
+      id: get_modified_files
+      run: |
+        # Get the list of modified Python files and scripts
+        files=$(git diff --name-only HEAD^ HEAD)
+        echo "MODIFIED_FILES=$files" >> $GITHUB_ENV
+
+    # Step 2: Dynamically identify the Lambda function directory based on the changed files
+    - name: Identify Lambda function directory
+      id: identify_lambda_function
+      run: |
+        # Find the directory for the changed lambda function (assuming lambda functions are in separate folders)
+        for file in $MODIFIED_FILES; do
+          if [[ $file == */lambda_function.py ]]; then
+            function_name=$(dirname $file)
+            echo "FUNCTION_NAME=$function_name" >> $GITHUB_ENV
+          fi
+        done
+
+    # Step 3: Print the Lambda function directory
+    - name: Print function name
+      run: |
+        echo "Lambda Function Directory: $FUNCTION_NAME"
+
+
+
     - name: Run bash script and print output
       id: run_script2
       run: |
@@ -72,3 +100,6 @@ jobs:
       run: |
         aws lambda update-alias --function-name "$FUNCTION_NAME" --name "$ENV" --function-version ${{ steps.publish_version.outputs.VERSION }} || \
         aws lambda create-alias --function-name "$FUNCTION_NAME" --name "$ENV" --function-version ${{ steps.publish_version.outputs.VERSION }}
+    
+    - name: Update Lambda function environment variables back to dev
+      run: aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --environment "Variables={ENV=dev}"        
