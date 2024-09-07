@@ -8,6 +8,6 @@ def lambda_handler(event, context):
     
     return {
         'statusCode': 200,
-        'newvar': 'test99',
+        'newvar': 'test100',
         'body': unique_id
     }
