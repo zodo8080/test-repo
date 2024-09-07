@@ -1,10 +1,9 @@
-# .github/workflows/deploy.yml
 name: Deploy Lambda Function
 
 on:
   push:
     branches:
-      - master
+      - uat
 
 jobs:
   deploy:
@@ -13,17 +12,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    
-    - name: Chmod bash
-      run:  |
-        chmod +x test_hello_world/read_name.sh
-    
-    # - name: Run bash script and check output
-    #   id: run_script1
-    #   run: |
-    #     bash test_hello_world/read_name.sh
 
-    
     # Step 1: Retrieve the list of changed files in the push
     - name: Get modified files
       id: get_modified_files
@@ -35,7 +24,10 @@ jobs:
           # No previous commit, list all files in the current commit
           files=$(git ls-files)
         fi
-        echo "MODIFIED_FILES=$files" >> $GITHUB_ENV
+
+        # Join file names into a single space-separated string and store in GITHUB_ENV
+        files_joined=$(echo "$files" | tr '\n' ' ')
+        echo "MODIFIED_FILES=$files_joined" >> $GITHUB_ENV
 
     # Step 2: Dynamically identify the Lambda function directory based on the changed files
     - name: Identify Lambda function directory
@@ -53,32 +45,12 @@ jobs:
       run: |
         echo "Lambda Function Directory: $FUNCTION_NAME"
 
-
-    - name: Run bash script and print output
-      id: run_script2
-      run: |
-        function_name=$(bash test_hello_world/read_name.sh)
-        echo "FUNCTION_NAME=${function_name}" >> $GITHUB_ENV
-    
-    - name: Print function name
-      run: |
-        echo "Function Name: $FUNCTION_NAME"
-
-    - name: Run bash script  for env
-      id: run_script3
-      run: |
-        env=$(bash test_hello_world/read_env.sh)
-        echo "ENV=${env}" >> $GITHUB_ENV
-    
-    - name: Print function name
-      run: |
-        echo "Env: $ENV"
-   
-
+    # Step 4: Zip Lambda function from the dynamic folder
     - name: Zip Lambda Function
       run: |
         zip -j my_lambda_function.zip "$FUNCTION_NAME/lambda_function.py"
 
+    # Step 5: Configure AWS credentials
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -86,23 +58,28 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-south-1  # Change to your region
 
+    # Step 6: Deploy the Lambda function
     - name: Deploy Lambda Function
       run: |
         aws lambda update-function-code --function-name "$FUNCTION_NAME" --zip-file fileb://my_lambda_function.zip
-  
+
+    # Step 7: Update Lambda environment variables
     - name: Update Lambda function environment variables
       run: aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --environment "Variables={ENV=$ENV}"
-    
+
+    # Step 8: Publish new Lambda version
     - name: Publish New Version
       id: publish_version
       run: |
         VERSION=$(aws lambda publish-version --function-name "$FUNCTION_NAME" --query 'Version' --output text)
         echo "::set-output name=VERSION::$VERSION"
 
+    # Step 9: Create or update alias for the Lambda function
     - name: Create Alias
       run: |
         aws lambda update-alias --function-name "$FUNCTION_NAME" --name "$ENV" --function-version ${{ steps.publish_version.outputs.VERSION }} || \
         aws lambda create-alias --function-name "$FUNCTION_NAME" --name "$ENV" --function-version ${{ steps.publish_version.outputs.VERSION }}
-    
+
+    # Optional: Reset environment variables back to dev (if needed)
     - name: Update Lambda function environment variables back to dev
-      run: aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --environment "Variables={ENV=dev}"        
+      run: aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --environment "Variables={ENV=dev}"
