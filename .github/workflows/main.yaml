@@ -53,7 +53,7 @@ jobs:
     - name: Run script to get function name
       id: run_script2
       run: |
-        function_name=$(bash test_hello_world/read_config.sh name)
+        function_name=$(bash $FUNCTION_PATH/read_config.sh name)
         echo "FUNCTION_NAME=${function_name}" >> $GITHUB_ENV
     
     - name: Print function name
@@ -63,7 +63,7 @@ jobs:
     - name: Run script to get env
       id: run_script3
       run: |
-        env=$(bash test_hello_world/read_config.sh env)
+        env=$(bash $FUNCTION_PATH/read_config.sh env)
         echo "ENV=${env}" >> $GITHUB_ENV
     
     - name: Print environment variable
