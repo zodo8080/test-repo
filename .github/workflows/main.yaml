@@ -50,6 +50,7 @@ jobs:
       run: |
         zip -j my_lambda_function.zip "$FUNCTION_PATH/lambda_function.py"
     
+    # Step 5: Run script to get function name
     - name: Run script to get function name
       id: run_script2
       run: |
@@ -60,6 +61,7 @@ jobs:
       run: |
         echo "Function Name: $FUNCTION_NAME"
 
+    # Step 6: Run script to get env
     - name: Run script to get env
       id: run_script3
       run: |
@@ -69,7 +71,8 @@ jobs:
     - name: Print environment variable
       run: |
         echo "Env: $ENV"
-    # Step 5: Configure AWS credentials
+
+    # Step 7: Configure AWS credentials
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -77,27 +80,27 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-south-1  # Change to your region
 
-    # Step 6: Deploy the Lambda function
+    # Step 8: Deploy the Lambda function
     - name: Deploy Lambda Function
       run: |
         aws lambda update-function-code --function-name "$FUNCTION_PATH" --zip-file fileb://my_lambda_function.zip
 
-    # Step 7: Update Lambda environment variables
+    # Step 9: Update Lambda environment variables
     - name: Update Lambda function environment variables
       run: aws lambda update-function-configuration --function-name "$FUNCTION_PATH" --environment "Variables={ENV=$ENV}"
 
-    # Step 8: Publish new Lambda version
+    # Step 10: Publish new Lambda version
     - name: Publish New Version
       id: publish_version
       run: |
         VERSION=$(aws lambda publish-version --function-name "$FUNCTION_PATH" --query 'Version' --output text)
-        echo "::set-output name=VERSION::$VERSION"
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
-    # Step 9: Create or update alias for the Lambda function
+    # Step 11: Create or update alias for the Lambda function
     - name: Create Alias
       run: |
-        aws lambda update-alias --function-name "$FUNCTION_PATH" --name "$ENV" --function-version ${{ steps.publish_version.outputs.VERSION }} || \
-        aws lambda create-alias --function-name "$FUNCTION_PATH" --name "$ENV" --function-version ${{ steps.publish_version.outputs.VERSION }}
+        aws lambda update-alias --function-name "$FUNCTION_PATH" --name "$ENV" --function-version $VERSION || \
+        aws lambda create-alias --function-name "$FUNCTION_PATH" --name "$ENV" --function-version $VERSION
 
     # Optional: Reset environment variables back to dev (if needed)
     - name: Update Lambda function environment variables back to dev
