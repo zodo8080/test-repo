@@ -49,7 +49,26 @@ jobs:
     - name: Zip Lambda Function
       run: |
         zip -j my_lambda_function.zip "$FUNCTION_PATH/lambda_function.py"
+    
+    - name: Run script to get function name
+      id: run_script2
+      run: |
+        function_name=$(bash test_hello_world/read_config.sh name)
+        echo "FUNCTION_NAME=${function_name}" >> $GITHUB_ENV
+    
+    - name: Print function name
+      run: |
+        echo "Function Name: $FUNCTION_NAME"
 
+    - name: Run script to get env
+      id: run_script3
+      run: |
+        env=$(bash test_hello_world/read_config.sh env)
+        echo "ENV=${env}" >> $GITHUB_ENV
+    
+    - name: Print environment variable
+      run: |
+        echo "Env: $ENV"
     # Step 5: Configure AWS credentials
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
