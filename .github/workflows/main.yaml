@@ -24,7 +24,7 @@ jobs:
           # No previous commit, list all files in the current commit
           files=$(git ls-files)
         fi
-
+        echo "file=$files"
         # Join file names into a single space-separated string and store in GITHUB_ENV
         files_joined=$(echo "$files" | tr '\n' ' ')
         echo "MODIFIED_FILES=$files_joined" >> $GITHUB_ENV
